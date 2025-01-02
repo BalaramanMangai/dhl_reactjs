@@ -1,0 +1,92 @@
+/* Compiled CSS from your LESS code */
+input {
+  box-sizing: border-box;
+  width: 100%;
+  height: calc(3em + 2px);
+  margin: 0 0 1em;
+  padding: 1em;
+  border: 1px solid #ccc;
+  border-radius: 1.5em;
+  background: #fff;
+  resize: none;
+  outline: none;
+}
+
+input[required]:focus {
+  border-color: #00bafa;
+}
+
+input[required]:focus + label[placeholder]:before {
+  color: #00bafa;
+}
+
+input[required]:focus + label[placeholder]:before,
+input[required]:valid + label[placeholder]:before {
+  transform: translate(0, -1.5em) scale(0.9, 0.9);
+  transition-duration: 0.2s;
+}
+
+input[required]:invalid + label[placeholder][alt]:before {
+  content: attr(alt);
+}
+
+input[required] + label[placeholder] {
+  display: block;
+  pointer-events: none;
+  line-height: 1.25em;
+  margin-top: calc(-3em - 2px);
+  margin-bottom: calc(3em - 1em + 2px);
+}
+
+input[required] + label[placeholder]:before {
+  content: attr(placeholder);
+  display: inline-block;
+  margin: 0 calc(1em + 2px);
+  padding: 0 2px;
+  color: #898989;
+  white-space: nowrap;
+  transition: 0.3s ease-in-out;
+  background-image: linear-gradient(to bottom, #fff, #fff);
+  background-size: 100% 5px;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+select {
+  box-sizing: border-box;
+  width: 100%;
+  height: calc(3em + 2px); /* Same height as input */
+  margin: 0 0 1em;
+  padding: 0 1em; /* Adjust padding for dropdown */
+  border: 1px solid #ccc;
+  border-radius: 1.5em;
+  background: #fff;
+  outline: none;
+  appearance: none; /* Hides default dropdown arrow */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  position: relative;
+  cursor: pointer;
+}
+
+select:focus {
+  border-color: #00bafa;
+}
+
+select:required:invalid {
+  color: #898989; /* Placeholder-like text color */
+}
+
+select option {
+  color: #000;
+}
+
+/* Arrow for dropdown */
+select::after {
+  content: "▼"; /* Add custom arrow */
+  position: absolute;
+  right: 1em;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
