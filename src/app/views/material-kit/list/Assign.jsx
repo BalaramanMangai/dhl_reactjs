@@ -21,7 +21,7 @@ export default function Assign() {
   return (
     <Container>
       <Box className="breadcrumb">
-        <Breadcrumb routeSegments={[{ name: "Assign Members", path: "/assignmembers" }, { name: "" }]} />
+        <Breadcrumb routeSegments={[{ name: "Sales Overview", path: "/sales" }, { name: "" }]} />
       </Box>
 
         {/* <CreateAssign/> */}

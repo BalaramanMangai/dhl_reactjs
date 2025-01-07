@@ -17,10 +17,10 @@ export default function AssignTable() {
   return (
     <Container>
       <Box className="breadcrumb">
-        <Breadcrumb routeSegments={[{ name: "Members", path: "/assignmembers" }, { name: "" }]} />
+        <Breadcrumb routeSegments={[{ name: "Sales Overview", path: "/sales" }, { name: "" }]} />
       </Box>
 
-      <SimpleCard title="Sales">
+      <SimpleCard title="Sales Overview">
         <AssignList />
       </SimpleCard>
     </Container>

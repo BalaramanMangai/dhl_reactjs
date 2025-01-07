@@ -1,0 +1,26 @@
+/* Datepicker container style */
+.custom-datepicker-container {
+  width: 137%; /* Take full width of the parent container */
+  display: flex;
+  justify-content: flex-start; /* Align it to the left */
+  gap: 10px;
+}
+
+/* The actual Datepicker input field style */
+.custom-datepicker {
+  width: 100%; /* You can adjust this percentage to fit your design */
+  height: 40px;
+  border: 1px solid #ccc;
+  border-radius: 0px !important; /* Force no border radius */
+  padding: 8px;
+  font-size: 14px;
+  display: block;
+}
+
+/* Override react-datepicker popper styles if needed */
+.react-datepicker__input-container input {
+  border-radius: 0px !important; /* Remove border radius of input */
+  position: relative;
+  display: inline-block;
+  width: 137%;
+}

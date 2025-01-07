@@ -29,7 +29,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import { useNavigate } from 'react-router-dom';
 import {  useTheme } from "@mui/material/styles";
 //import { addSales , clearSales } from '../../../../features/auth/saleSlice';
-import { addSales , removeSales} from '../../../../features/auth/saleSlice';
+//import { addSales , removeSales} from '../../../../features/auth/saleSlice';
 
 
 // STYLED COMPONENT
@@ -82,9 +82,8 @@ export default function ProductList() {
   const [startDate, setStartDate] = useState(new Date());
   const [AgentList, setMembersData] = useState([]);
   const [memberList, setApiResponse] = useState([]);
-  const [memberdata, setMemberAllData] = useState([]);
 
-  //const sales = useSelector((state) => state.sales);
+  const sales = useSelector((state) => state.sales);
  const [dataList, setSaleData] = useState([]);
   //console.log('sales',sales.sales);
   
@@ -152,9 +151,8 @@ export default function ProductList() {
     
         try {
           const response = await axios.post(url, payload);
-          //setResponseMessage(`Success: ${response.data.message}`);
-          navigate('/salesoverview'); 
-
+          setResponseMessage(`Success: ${response.data.message}`);
+          fetchData();
         } catch (error) {
           setResponseMessage(`Error: ${error.response ? error.response.status : error.message}`);
         }
@@ -163,52 +161,6 @@ export default function ProductList() {
     
   };
 
-  const submitRow = async (e) => {
-    e.preventDefault();
-   
-        const url = 'http://localhost:3000/users/saleProduct';
-        const formattedDate = format(new Date(startDate.toISOString()), "yyyy-MM-dd");       
-          // Additional fields
-          const additionalFields = {
-            login_user : auth.userInfo.user_id,
-            agent_id: value.user_id,
-            user_id: valueMem.user_id,
-            payment_date: formattedDate,
-          };
-        
-          // Combine data with additional fields
-          const payload = {
-            rows,
-            ...additionalFields,
-          };
-
-          console.log('payload',payload);
-
-          //dispatch(addSales(rows));   
-          //setSaleData(rows);
-        
-          try {
-            const response = await axios.post("http://localhost:3000/users/saleProduct", payload);
-            console.log("Response:", response.data);
-            navigate('/salesoverview');
-          } catch (error) {
-            console.error("Error sending data:", error);
-          }       
-
-
-        //dispatch(addSales(payload));       
-    
-        // try {
-        //   const response = await axios.post(url, payload);
-        //   setResponseMessage(`Success: ${response.data.message}`);
-        //   fetchData();
-        // } catch (error) {
-        //   setResponseMessage(`Error: ${error.response ? error.response.status : error.message}`);
-        // }
-        // console.log('Form submitted successfully:', formData);
-    
-    
-  };
 
   
   const deleteSale = async (product) => {console.log(product);
@@ -236,6 +188,23 @@ export default function ProductList() {
     //dispatch(removeSales({ id: sale_id })); 
   };
   
+  const editProduct = async (product) => {
+
+
+    console.log('product',product);
+
+    setFormData(prevFormData => ({
+      ...prevFormData,
+      result_time: product.result_time,
+      rupees_category: product.rupees_category,
+      product_code: product.product_code,
+      num_products: product.no_of_product,
+      sale_id: product.sale_id,
+  }));
+
+
+
+  };
 
   const validateForm = () => {
     const errors = {}; 
@@ -276,6 +245,14 @@ export default function ProductList() {
     return errors;
   };
 
+  const handleChangePage = (_, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(+event.target.value);
+    setPage(0);
+  };
 
  
   // const fetchData = async () => {
@@ -348,9 +325,7 @@ const handleClear = () => {
             user_id:newValue.user_id,
             login_role : 2,
           },
-        });  
-        
-        //setMemberAllData(response.data);
+        });        
 
         const Member_List = response.data.map(item => ({
           user_id: item.user_id,
@@ -370,51 +345,14 @@ const handleClear = () => {
     }
   };
 
- ///New code
- const [rows, setRows] = useState([
-  { id: 1, result_time: "", rupees_category: "", product_code: "", num_products: "" },
-]);
-
-// Add a new row
-const addRow = () => {
-  setRows([
-    ...rows,
-    {
-      id: rows.length + 1,
-      result_time: "",
-      rupees_category: "",
-      product_code: "",
-      num_products: "",
-    },
-  ]);
-};
-
-// Remove a row
-const removeRow = (id) => {alert(id);
-  setRows(rows.filter((row) => row.id !== id));
-  console.log('rows',rows);
-};
-
-// Handle input change
-const handleInputChange = (id, field, value) => {
-  setRows(
-    rows.map((row) =>
-      row.id === id ? { ...row, [field]: value } : row
-    )
-  );
-};
-///End 
-
-const handleMemberChange = async (event, newValue) => {console.log('>>>',memberList); 
+const handleMemberChange = async (event, newValue) => {
     if (newValue) {
-      
-      setValueMem(newValue);   
+      setValueMem(newValue);    
     }
   };
 
   useEffect(() => {
    // fetchData();
-    dispatch(removeSales([{}])); 
     getAgentList();
   }, []);
 
@@ -454,7 +392,7 @@ const handleMemberChange = async (event, newValue) => {console.log('>>>',memberL
           renderInput={(params) => (
             <TextField
               {...params}
-              placeholder="Select agent"
+              label=""
               variant="outlined"
               sx={{
                 "& .MuiInputBase-root": {
@@ -496,7 +434,7 @@ const handleMemberChange = async (event, newValue) => {console.log('>>>',memberL
           renderInput={(params) => (
             <TextField
               {...params}
-              placeholder="Select Member"
+              label=""
               variant="outlined"
               sx={{
                 "& .MuiInputBase-root": {
@@ -539,150 +477,154 @@ const handleMemberChange = async (event, newValue) => {console.log('>>>',memberL
     </div>
 
 
-    <div>
-      <h3>Dynamic Rows Example</h3>
-      <table cellPadding="10" border="0" width={"100%"} >
-        <thead>
-          <tr>
-            <th>Time</th>
-            <th>Price</th>
-            <th>Product Purchase</th>
-            <th>Number Ticket</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row) => (
-            <tr key={row.id}>
-              <td>
-                {/* <input type="time" value={row.time} onChange={(e) =>handleInputChange(row.id, "time", e.target.value)}/> */}
-
-                <select
-                  id="result_time"
-                  name="result_time"
-                  value={row.result_time}
-                  onChange={(e) =>handleInputChange(row.id, "result_time", e.target.value)}
-                  className="form-input"
-                 
-                >
-              <option value="">Time</option>
-              <option value="1">1'o clock</option>
-              <option value="6">6'o clock</option>
-              <option value="8">8'o clock</option>
-              <option value="3">3'o clock</option>
-            </select>
-
-              </td>
-              <td>
-                {/* <input type="number" placeholder="Price" value={row.price} onChange={(e) =>handleInputChange(row.id, "price", e.target.value)}/> */}
-                  
-                <select
-                      id="rupees_category"
-                      name="rupees_category"
-                      value={row.rupees_category}
-                      onChange={(e) =>handleInputChange(row.id, "rupees_category", e.target.value)}
-                      className="form-input"
-                   
-                    >
-                      <option value="">Rupees</option>
-                      <option value="30">30 Rupees</option>
-                      <option value="60">60 Rupees</option>
-                      <option value="120">120 Rupees</option>
-                    </select>
-              
-              </td>
-              <td>
-                {/* <input type="text" placeholder="Product Purchase" value={row.productPurchase} onChange={(e) =>handleInputChange(row.id, "productPurchase", e.target.value)}/> */}
-                <input id="product_code" type="text" name="product_code" placeholder="Product Code" value={row.product_code} 
-                onChange={(e) =>handleInputChange(row.id, "product_code", e.target.value)} className="form-input" />
-              </td>
-              <td>
-                {/* <input type="number" placeholder="Number Ticket" value={row.numberTicket} onChange={(e) =>handleInputChange(row.id, "numberTicket", e.target.value)}/> */}
-                <input id="num_products" type="text" name="num_products" placeholder="Ex. 1" value={row.num_products} onChange={(e) =>handleInputChange(row.id, "num_products", e.target.value)} className="form-input"
-    />
-    </td>
-              <td>
-              {(row.id!==1)?<Button type="submit" variant="contained" color="primary" onClick={() => removeRow(row.id)}>Remove</Button>:''}&nbsp;
-                {(row.id==1)?<Button onClick={addRow} variant="contained" color="primary" >Add Row</Button>:''}&nbsp;
-                {/* {(row.id==1)?<Button onClick={submitRow} variant="contained" color="primary" >Save</Button>:''}&nbsp; */}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-
-      </table>
+    <div
+  style={{
+    display: "flex",
+    flexWrap: "wrap",
+    gap: "20px",
+    maxWidth: "1050px",
+    justifyContent: "space-between",marginLeft: "92px"
+  }}
+>
+  <div style={{ flex: "1 1 calc(25% - 20px)", marginBottom: "10px" }}>
+    <label htmlFor="result_time" style={{ display: "block", marginBottom: "5px" }}>
       
-    </div>
+    </label>Result Time
+    <select
+      id="result_time"
+      name="result_time"
+      value={formData.result_time}
+      onChange={handleChange}
+      className="form-input"
+      style={{
+        width: "71%",
+        padding: "8px",
+        borderRadius: "4px",
+        border: "1px solid #ccc",
+      }}
+    >
+      <option value="">Time</option>
+      <option value="1">1'o clock</option>
+      <option value="6">6'o clock</option>
+      <option value="8">8'o clock</option>
+      <option value="3">3'o clock</option>
+    </select>
+    {formErrors.result_time && <p style={errorStyle}>{formErrors.result_time}</p>}
+  </div>
+
+  <div style={{ flex: "1 1 calc(25% - 20px)", marginBottom: "10px" }}>
+    <label htmlFor="rupees_category" style={{ display: "block", marginBottom: "5px" }}>
+      Price
+    </label>
+    <select
+      id="rupees_category"
+      name="rupees_category"
+      value={formData.rupees_category}
+      onChange={handleChange}
+      className="form-input"
+      style={{
+        width: "71%",
+        padding: "8px",
+        borderRadius: "4px",
+        border: "1px solid #ccc",
+      }}
+    >
+      <option value="">Rupees</option>
+      <option value="30">30 Rupees</option>
+      <option value="60">60 Rupees</option>
+      <option value="120">120 Rupees</option>
+    </select>
+    {formErrors.rupees_category && <p style={errorStyle}>{formErrors.rupees_category}</p>}
+  </div>
+
+  <div style={{ flex: "1 1 calc(25% - 20px)", marginBottom: "10px" }}>
+    <label htmlFor="product_code" style={{ display: "block", marginBottom: "5px" }}>
+      Product Code
+    </label>
+    <input
+      id="product_code"
+      type="text"
+      name="product_code"
+      placeholder="Product Code"
+      value={formData.product_code}
+      onChange={handleChange}
+      className="form-input"
+      style={{
+        width: "71%",
+        padding: "8px",
+        borderRadius: "4px",
+        border: "1px solid #ccc",
+      }}
+    />
+    {formErrors.product_code && <p style={errorStyle}>{formErrors.product_code}</p>}
+  </div>
+
+  <div style={{ flex: "1 1 calc(25% - 20px)", marginBottom: "10px" }}>
+    <label htmlFor="num_products" style={{ display: "block", marginBottom: "5px" }}>
+      Number Of Ticket
+    </label>
+    <input
+      id="num_products"
+      type="text"
+      name="num_products"
+      placeholder="Ex. 1"
+      value={formData.num_products}
+      onChange={handleChange}
+      className="form-input"
+      style={{
+        width: "71%",
+        padding: "8px",
+        borderRadius: "4px",
+        border: "1px solid #ccc",
+      }}
+    />
+    {formErrors.num_products && <p style={errorStyle}>{formErrors.num_products}</p>}&nbsp;&nbsp; 
+    <Button type="submit" variant="contained" color="primary" >Add</Button>
+  </div>
+
+  
+</div>
 
   
    <br /><br /><hr></hr>
   </form>
 
-  <StyledTable>
-  <TableHead>
-    <TableRow>
-      <TableCell align="left">S.No</TableCell>
-      <TableCell align="left">RT</TableCell>
-      <TableCell align="left">Price</TableCell>
-      <TableCell align="left">Code</TableCell>
-      <TableCell align="center">Number Ticket</TableCell>
-      <TableCell align="center">Total</TableCell>
-    </TableRow>
-  </TableHead>
-  <TableBody>
-    {rows
-      .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-      .map((product, index) => {
-        const calculatedTotal = product.rupees_category * product.num_products;
-        return (
-          <TableRow key={product.id || index}>
-            <TableCell align="left">{page * rowsPerPage + index + 1}</TableCell>
-            <TableCell align="left">{product.result_time}</TableCell>
-            <TableCell align="left">₹{product.rupees_category}</TableCell>
-            <TableCell align="left">{product.product_code}</TableCell>
-            <TableCell align="center">{product.num_products}</TableCell>
-            <TableCell align="center">₹{calculatedTotal}</TableCell>
-            {/* Uncomment and validate if action buttons are needed */}
-            {/* <TableCell align="center">
-              <IconButton onClick={() => editProduct(product)} color="primary">
-                <Edit />
-              </IconButton> */}
-              {/* Uncomment if removeRow logic is implemented */}
-              {/* <IconButton onClick={() => removeRow(product.id)} color="error">
-                <Icon>close</Icon>
-              </IconButton> */}
-            {/* </TableCell> */}
+      <StyledTable>
+        <TableHead>
+          <TableRow>
+            <TableCell align="left">S.No</TableCell>
+            <TableCell align="left">RT</TableCell>
+            <TableCell align="left">Price</TableCell>
+            <TableCell align="left">Code</TableCell>
+            <TableCell align="center">Number Ticket</TableCell>
+            <TableCell align="center">Total</TableCell>
+            <TableCell align="center">Action</TableCell>
+            
           </TableRow>
-        );
-      })}
-    {/* Total Calculation Row */}
-    <TableRow>
-      <TableCell colSpan={4} align="right">
-        <strong>Total</strong>
-      </TableCell>
-      <TableCell></TableCell>
-      <TableCell align="center">
-        <strong>
-        ₹{rows
-            .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-            .reduce(
-              (sum, product) =>
-                sum + product.rupees_category * product.num_products,
-              0
-            )}
-        </strong>
-      </TableCell>
-    </TableRow>
-
-    <TableRow>
-      <TableCell colSpan={4} align="right"><Button variant="contained" color="primary" >Pay Online</Button></TableCell>
-      <TableCell><Button variant="contained" color="primary" onClick={submitRow} >Pay Cash</Button></TableCell>
-      <TableCell align="center"></TableCell>
-    </TableRow>
-
-  </TableBody>
-</StyledTable>
-
+        </TableHead>
+        <TableBody>
+          {dataList.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+            .map((product, index) => (
+              <TableRow key={index}>
+                <TableCell align="left">{++index}</TableCell>
+                <TableCell align="left">{product.result_time}</TableCell>
+                <TableCell align="left">{product.rupees_category}</TableCell>
+                <TableCell align="left">{product.product_code}</TableCell>
+                <TableCell align="center">{product.num_products}</TableCell> 
+                <TableCell align="center">{product.rupees_category*product.num_products}</TableCell> 
+                
+                <TableCell align="center">
+                  {/* <IconButton><Edit onClick={() => editProduct(product)} color="primary" /></IconButton> */}
+                  <IconButton>
+                    <Icon onClick={() => deleteSale(product)} color="error">close</Icon>
+                  </IconButton>
+                </TableCell> 
+                
+              </TableRow>
+            ))}
+            {(dataList.length==0)?<TableRow><TableCell></TableCell><TableCell></TableCell><TableCell align="center">No Data Found</TableCell><TableCell></TableCell><TableCell></TableCell></TableRow>:''}
+        </TableBody>
+      </StyledTable>
 
       {/* <TablePagination
         sx={{ px: 2 }}

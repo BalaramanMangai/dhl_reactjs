@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import moment from "moment-timezone";
 
 import {
   Box,
@@ -59,7 +60,7 @@ export default function AssignList() {
 
 
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage, setRowsPerPage] = useState(15);
 
   const handleChangePage = (_, newPage) => {
     setPage(newPage);
@@ -71,16 +72,16 @@ export default function AssignList() {
   };
   
   const fetchData = async () => {
-    const url = 'http://localhost:3000/users/getMembers';
+    const url = 'http://localhost:3000/users/getOverview';
     setLoading(true);
 
     try {
       //const response = await axios.get(url);
 
+
       const response = await axios.get(url, {
         params: {
-          role_id: 1,
-          user_id:auth.userInfo.user_id,
+          login_user : auth.userInfo.user_id,
           login_role : auth.userInfo.role_id,
         },
       });
@@ -97,6 +98,9 @@ export default function AssignList() {
     }
   };
 
+  const formatDate = (dateString) => {
+    return moment(dateString).tz("Asia/Kolkata").format("DD-MM-YYYY");
+  };
 
 
   const handleClick = (user) => {
@@ -116,29 +120,31 @@ export default function AssignList() {
       <StyledTable>
         <TableHead>
           <TableRow>
-            <TableCell align="left">Members</TableCell>
-            <TableCell align="left">Status</TableCell>
-            <TableCell align="left">Assign</TableCell>
+            <TableCell align="left">Agent Code</TableCell>
+            <TableCell align="left">Member Code</TableCell>
+            <TableCell align="left">Payment Date</TableCell>
+            <TableCell align="left">Result Time</TableCell>
+            <TableCell align="left">Price</TableCell>
+            <TableCell align="left">Code</TableCell>
+            <TableCell align="left">Number Of Product</TableCell>            
           </TableRow>
         </TableHead>
         <TableBody>
           {dataList.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
             .map((user, index) => (
               <TableRow key={index}>
-                <TableCell align="left">{user.name}</TableCell>
-                <TableCell align="left"><Small bgcolor={bgSecondary}>{(user.status==1)?'Active':'Inactive'}</Small></TableCell>
-                <TableCell align="left">
-                   
-
-                   {/* <EditIcon onClick={()=>handleClick(product)} style={{ cursor: 'pointer' }} /> */}
-
+                <TableCell align="left">{user.agent_code}</TableCell>
+                <TableCell align="left">{user.member_code}</TableCell>
+                <TableCell align="left">{formatDate(user.payment_date)}</TableCell>
+                <TableCell align="left">{user.result_time}</TableCell>
+                <TableCell align="left">{user.price}</TableCell>
+                <TableCell align="left">{user.product_code}</TableCell>
+                <TableCell align="left">{user.number_product}</TableCell>
+                {/* <TableCell align="left"> 
+                   <EditIcon onClick={()=>handleClick(product)} style={{ cursor: 'pointer' }} />
                    <Small bgcolor={bgPrimary} onClick={()=>handleClick(user)}>Assign Now</Small>
-
-                   {/* <IconButton>
-                    <Icon color="error">close</Icon>
-                  </IconButton>
-                  */}
-                </TableCell>
+                   <IconButton><Icon color="error">close</Icon></IconButton>                 
+                </TableCell> */}
               </TableRow>
             ))}
         </TableBody>
